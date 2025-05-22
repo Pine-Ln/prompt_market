@@ -1,9 +1,15 @@
 import Link from 'next/link';
-import LikeButton from './LikeButton'; // 假设 LikeButton 在同级目录或相应调整
-import styles from '../styles/PromptCard.module.css'; // 导入 CSS 模块
-import { useState, useEffect } from 'react'; // 引入 useState 和 useEffect
-import { MdContentCopy, MdCheck, MdEdit, MdDelete, MdThumbUp, MdVisibility } from 'react-icons/md';
+import styles from '../styles/PromptCard.module.css';
+import { useState, useEffect } from 'react';
+import { MdContentCopy, MdCheck, MdEdit, MdDelete, MdThumbUp, MdVisibility, MdFavorite, MdFavoriteBorder } from 'react-icons/md';
 import SafeMarkdown from './SafeMarkdown';
+import { useSession } from 'next-auth/react';
+
+// 辅助函数，用于检查当前用户是否已点赞
+const checkIsLiked = (likedBy, userId) => {
+  if (!likedBy || !userId) return false;
+  return likedBy.includes(userId);
+};
 
 export default function PromptCard({ prompt, currentUserId }) {
   if (!prompt) return null; // 添加一个保护，防止 prompt 未定义
@@ -11,6 +17,8 @@ export default function PromptCard({ prompt, currentUserId }) {
   const [copied, setCopied] = useState(false); // 状态追踪复制操作
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const { data: session } = useSession();
+  const userId = session?.user?.id; // 获取当前登录用户的 ID
   
   // 在客户端渲染后设置 isClient 为 true
   useEffect(() => {
@@ -19,6 +27,17 @@ export default function PromptCard({ prompt, currentUserId }) {
   
   const isAuthor = currentUserId && prompt.author?._id === currentUserId;
 
+  // 使用状态来管理点赞数和当前用户是否已点赞
+  const [likesCount, setLikesCount] = useState(prompt.likesCount || 0);
+  const [isLiked, setIsLiked] = useState(checkIsLiked(prompt.likedBy, userId));
+  const [isLoading, setIsLoading] = useState(false); // 用于防止重复点击
+
+  // 当 prompt 或 session 变化时，更新 isLiked 状态
+  useEffect(() => {
+    setIsLiked(checkIsLiked(prompt.likedBy, userId));
+    setLikesCount(prompt.likesCount || 0); // 确保在 prompt 数据更新时同步点赞数
+  }, [prompt, userId]);
+  
   const copyToClipboard = () => {
     if (!prompt.content || !isClient) return;
     
@@ -103,6 +122,46 @@ export default function PromptCard({ prompt, currentUserId }) {
     }
   };
 
+  const handleLike = async () => {
+    // 如果用户未登录，提示登录
+    if (!session) {
+      alert('请先登录才能点赞！'); // 或者使用更友好的方式提示
+      return;
+    }
+
+    // 防止重复点击
+    if (isLoading) return;
+
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(`/api/prompts/${prompt._id}/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        // 不需要发送 body，用户 ID 从 token 中获取
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // 根据 API 返回的数据更新状态
+        setLikesCount(data.data.likesCount);
+        setIsLiked(data.data.likedByCurrentUser);
+        console.log(data.message);
+      } else {
+        console.error('点赞/取消点赞失败:', data.message);
+        alert(`操作失败: ${data.message}`); // 显示错误信息
+      }
+    } catch (error) {
+      console.error('调用点赞 API 发生错误:', error);
+      alert('操作过程中发生错误，请稍后再试');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className={styles.card}>
       <div className={styles.cardHeader}>
@@ -158,8 +217,19 @@ export default function PromptCard({ prompt, currentUserId }) {
         <div className={styles.cardFooter}>
           <div className={styles.stats}>
             <div className={styles.statItem}>
-              <MdThumbUp className={styles.statIcon} />
-              <span className={styles.statValue}>{prompt.likesCount || 0}</span>
+              <button
+                onClick={handleLike}
+                disabled={isLoading} // 点赞过程中禁用按钮
+                className={styles.likeButton}
+                aria-label={isLiked ? '取消点赞' : '点赞'} // 辅助功能标签
+              >
+                {isLiked ? (
+                  <MdFavorite className={styles.likedIcon} /> // 已点赞的心形图标
+                ) : (
+                  <MdFavoriteBorder className={styles.likeIcon} /> // 未点赞的心形图标
+                )}
+                <span className={styles.likesCount}>{likesCount}</span>
+              </button>
             </div>
             <div className={styles.divider}></div>
             <div className={styles.statItem}>

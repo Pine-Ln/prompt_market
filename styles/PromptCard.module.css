@@ -295,4 +295,40 @@
     flex-direction: column;
     gap: 0.5rem;
   }
+}
+
+.likeButton {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease-in-out;
+  color: var(--color-icon);
+}
+
+.likeButton:hover:not(:disabled) {
+  background-color: var(--color-hover-background);
+}
+
+.likeButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.likeIcon,
+.likedIcon {
+  font-size: 20px;
+  margin-right: 4px;
+}
+
+.likedIcon {
+  color: var(--color-liked-icon);
+}
+
+.likesCount {
+  font-size: 14px;
+  color: var(--color-text-secondary);
 } 

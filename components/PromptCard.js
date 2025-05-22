@@ -8,7 +8,19 @@ import { useSession } from 'next-auth/react';
 // 辅助函数，用于检查当前用户是否已点赞
 const checkIsLiked = (likedBy, userId) => {
   if (!likedBy || !userId) return false;
+  // 确保比较的是字符串或 ObjectId，取决于后端返回的 likedBy 数组中存储的类型
+  // 假设 likedBy 存储的是用户 ID 字符串
   return likedBy.includes(userId);
+};
+
+// 辅助函数，用于截断文本到指定行数
+const truncateTextByLines = (text, maxLines) => {
+  if (!text) return '';
+  const lines = text.split('\n');
+  if (lines.length <= maxLines) {
+    return text;
+  }
+  return lines.slice(0, maxLines).join('\n') + '...';
 };
 
 export default function PromptCard({ prompt, currentUserId }) {
@@ -38,33 +50,17 @@ export default function PromptCard({ prompt, currentUserId }) {
     setLikesCount(prompt.likesCount || 0); // 确保在 prompt 数据更新时同步点赞数
   }, [prompt, userId]);
   
-  const copyToClipboard = () => {
-    if (!prompt.content || !isClient) return;
-    
-    try {
-      // 检查剪贴板API是否可用
-      if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(prompt.content);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      } else {
-        // 备用方法
-        const textArea = document.createElement('textarea');
-        textArea.value = prompt.content;
-        textArea.style.position = 'fixed';
-        textArea.style.left = '-999999px';
-        textArea.style.top = '-999999px';
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      }
-    } catch (err) {
-      console.error('复制失败:', err);
-    }
+  // 截断 Prompt 内容到前 3 行
+  const truncatedContent = truncateTextByLines(prompt.content, 3);
+
+  const handleCopy = () => {
+    // 复制完整内容，而不是截断后的内容
+    navigator.clipboard.writeText(prompt.content);
+    setCopied(true);
+
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
   };
 
   const formatDate = (dateString) => {
@@ -180,7 +176,7 @@ export default function PromptCard({ prompt, currentUserId }) {
         </div>
         {isClient && (
           <button
-            onClick={copyToClipboard}
+            onClick={handleCopy}
             className={styles.copyButton}
             title="复制内容"
           >
@@ -196,7 +192,7 @@ export default function PromptCard({ prompt, currentUserId }) {
         </Link>
         
         <div className={styles.promptContent}>
-          <SafeMarkdown content={prompt.content} />
+          <SafeMarkdown content={truncatedContent} />
         </div>
         
         {/* 标签和价格 */}

@@ -3,9 +3,11 @@ import styles from '../styles/Home.module.css';
 import PromptsList from '../components/PromptsList';
 import Head from 'next/head';
 import { useTheme } from '../contexts/ThemeContext';
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import { MdLightbulb, MdShare, MdSync, MdSearch, MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
 
 export default function Home() {
+  
   const { isDark } = useTheme();
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -54,6 +56,8 @@ export default function Home() {
       </Head>
 
       <div className={`${styles.hero} ${isDark ? styles.heroDark : ''}`}>
+        {/* 添加 Vercel Speed Insights */}
+        <SpeedInsights />
         <h1 className={styles.title}>欢迎来到 Prompt 市场</h1>
         <p className={styles.description}>发现、分享和使用高质量的 Prompts</p>
         

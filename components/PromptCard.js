@@ -69,7 +69,7 @@ export default function PromptCard({ prompt, currentUserId }) {
   }, [prompt, userId]);
   
   // 截断 Prompt 内容到前 5 行或 200 个字符
-  const truncatedContent = truncateText(prompt.content, 5, 200);
+  const truncatedContent = truncateText(prompt.content, 5, 100);
 
   const handleCopy = () => {
     // 复制完整内容，而不是截断后的内容

@@ -56,8 +56,6 @@ export default function Home() {
       </Head>
 
       <div className={`${styles.hero} ${isDark ? styles.heroDark : ''}`}>
-        {/* 添加 Vercel Speed Insights */}
-        <SpeedInsights />
         <h1 className={styles.title}>欢迎来到 Prompt 市场</h1>
         <p className={styles.description}>发现、分享和使用高质量的 Prompts</p>
         
@@ -142,6 +140,9 @@ export default function Home() {
             </button>
           </div>
         )}
+
+        {/* 添加 Vercel Speed Insights */}
+        <SpeedInsights />
       </main>
 
       <footer className={styles.footer}>

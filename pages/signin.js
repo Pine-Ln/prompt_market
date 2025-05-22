@@ -64,10 +64,8 @@ export default function SignIn() {
             </button> */}
           </div>
           
-          <p className={styles.footer}>
-            登录即表示您同意我们的 
-            <a href="/terms" className={styles.link}>服务条款</a> 和 
-            <a href="/privacy" className={styles.link}>隐私政策</a>
+          <p style={{ marginTop: '30px', fontSize: '12px', color: '#888' }}>
+          通过登录，您同意我们的 <a href="https://github.com/vmoranv/prompt_market/blob/master/LICENSE" style={{color: '#555'}}>许可协议</a>。
           </p>
         </div>
       </main>

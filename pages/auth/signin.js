@@ -71,7 +71,7 @@ export default function SignInPage({ providers }) {
           </div>
         ))}
         <p style={{ marginTop: '30px', fontSize: '12px', color: '#888' }}>
-          通过登录，您同意我们的 <a href="/terms" style={{color: '#555'}}>服务条款</a> 和 <a href="/privacy" style={{color: '#555'}}>隐私政策</a>。
+          通过登录，您同意我们的 <a href="https://github.com/vmoranv/prompt_market/blob/master/LICENSE" style={{color: '#555'}}>许可协议</a>。
         </p>
       </div>
     </div>

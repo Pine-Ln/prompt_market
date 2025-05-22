@@ -80,7 +80,7 @@ export function ThemeProvider({ children }) {
     if (newTheme === 'system') {
       const prefersDark = typeof window !== 'undefined' 
         ? window.matchMedia('(prefers-color-scheme: dark)').matches 
-        : false; // 如果在服务器端，默认为 false
+        : false;
       setIsDark(prefersDark);
     } else {
       setIsDark(newTheme === 'dark');
@@ -90,7 +90,6 @@ export function ThemeProvider({ children }) {
     }
   };
 
-  // 应用主题到 HTML 元素
   useEffect(() => {
     if (!mounted) return;
     
@@ -99,7 +98,6 @@ export function ThemeProvider({ children }) {
     }
   }, [isDark, mounted]);
 
-  // 避免服务器和客户端渲染不匹配
   const value = {
     theme,
     isDark,
@@ -107,7 +105,6 @@ export function ThemeProvider({ children }) {
     setSpecificTheme
   };
 
-  // 解决水合问题的技巧：只在客户端渲染后显示子组件
   if (!mounted) {
     return <>{children}</>;
   }

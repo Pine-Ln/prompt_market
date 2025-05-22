@@ -15,6 +15,8 @@
 - **后端:** Next.js API Routes
 - **数据库:** MongoDB (使用 Mongoose 作为 ODM)
 - **认证:** NextAuth.js
+- **主题管理:** React Context API (用于切换主题)
+- **样式:** CSS Modules with CSS Variables (支持系统主题)
 - **UI (计划):** (例如 Tailwind CSS, Chakra UI, Material UI - 待定)
 
 ## 环境变量

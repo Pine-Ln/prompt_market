@@ -29,6 +29,12 @@ export default function CreatePromptPage() {
     setError(null);
     setSuccessMessage('');
 
+    // 处理标签输入：使用正则表达式分割中英文逗号，去除空白，过滤空字符串
+    const processedTags = tags
+      .split(/[,，]/) // 使用正则表达式同时匹配英文逗号和中文逗号
+      .map(tag => tag.trim()) // 去除每个标签两端的空白
+      .filter(tag => tag !== ''); // 过滤掉空字符串
+
     if (!title.trim() || !content.trim()) {
       setError('标题和内容不能为空！');
       setIsSubmitting(false);
@@ -44,7 +50,7 @@ export default function CreatePromptPage() {
         body: JSON.stringify({
           title,
           content,
-          tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag), 
+          tags: processedTags,
         }),
       });
 

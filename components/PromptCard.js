@@ -13,14 +13,32 @@ const checkIsLiked = (likedBy, userId) => {
   return likedBy.includes(userId);
 };
 
-// 辅助函数，用于截断文本到指定行数
-const truncateTextByLines = (text, maxLines) => {
+// 辅助函数，用于根据行数和字符数截断文本
+const truncateText = (text, maxLines, maxChars) => {
   if (!text) return '';
+
   const lines = text.split('\n');
-  if (lines.length <= maxLines) {
-    return text;
+  let truncatedLines = lines.slice(0, maxLines);
+  let truncatedText = truncatedLines.join('\n');
+
+  let needsEllipsis = false;
+
+  // 如果原始行数超过最大行数，需要添加省略号
+  if (lines.length > maxLines) {
+    needsEllipsis = true;
   }
-  return lines.slice(0, maxLines).join('\n') + '...';
+
+  // 如果截断后的文本长度超过最大字符数，则按字符数截断
+  if (truncatedText.length > maxChars) {
+    truncatedText = truncatedText.substring(0, maxChars);
+    needsEllipsis = true; // 即使行数没超，字符数超了也需要省略号
+  } else if (lines.length <= maxLines && truncatedText.length <= maxChars) {
+      // 如果行数和字符数都没超，则不需要省略号
+      needsEllipsis = false;
+  }
+
+
+  return truncatedText + (needsEllipsis ? '...' : '');
 };
 
 export default function PromptCard({ prompt, currentUserId }) {
@@ -50,8 +68,8 @@ export default function PromptCard({ prompt, currentUserId }) {
     setLikesCount(prompt.likesCount || 0); // 确保在 prompt 数据更新时同步点赞数
   }, [prompt, userId]);
   
-  // 截断 Prompt 内容到前 3 行
-  const truncatedContent = truncateTextByLines(prompt.content, 3);
+  // 截断 Prompt 内容到前 5 行或 200 个字符
+  const truncatedContent = truncateText(prompt.content, 5, 200);
 
   const handleCopy = () => {
     // 复制完整内容，而不是截断后的内容
